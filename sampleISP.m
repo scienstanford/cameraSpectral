@@ -19,7 +19,7 @@ fname = 'vcap0_w2064_h1552_12bit_RGGB_Expt_29992us_ag_22403_126.raw'; %
 % Blue
 % fname = 'vcap0_w2064_h1552_12bit_RGGB_Expt_29992us_ag_22403_66.raw';
 
-fp = fopen(fname,'rb');
+fp  = fopen(fullfile(csRootPath,'local',fname),'rb');
 raw = double(fread(fp,[height width],'uint16'));
 fclose(fp);
 
