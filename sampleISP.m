@@ -13,7 +13,11 @@ height = 2064;
 width = 1552; 
 bayerPattern = 'rggb';
 
-fname = 'vcap0_w2064_h1552_12bit_RGGB_Expt_29992us_ag_22403_126.raw';
+% Orange
+fname = 'vcap0_w2064_h1552_12bit_RGGB_Expt_29992us_ag_22403_126.raw'; %
+
+% Blue
+% fname = 'vcap0_w2064_h1552_12bit_RGGB_Expt_29992us_ag_22403_66.raw';
 
 fp = fopen(fname,'rb');
 raw = double(fread(fp,[height width],'uint16'));
@@ -49,8 +53,6 @@ rgb = double(rgb)/(2.^rawBits-1);
 rgb = rgb.^(1/2.2);
 
 figure; imshow(rgb);
-
-
 
 %%  This is how we get the RGB data from the image
 
@@ -89,7 +91,8 @@ vcAddObject(ip); ipWindow;
 
 sensor = sensorCreate;
 sensor = sensorSet(sensor,'cfa pattern',[1 2 ; 2 3]);
-sensor = sensorSet(sensor,'volts',rawPortion);
+rawScaled = single(rawPortion/(2^12));
+sensor = sensorSet(sensor,'volts',rawScaled);
 vcAddObject(sensor); sensorWindow;
 
 %%
