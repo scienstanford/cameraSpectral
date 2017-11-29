@@ -2,6 +2,7 @@
 
 clear all; close all; 
 
+ieInit
 %%
 ccmD50 = [1.8164, -0.7656, -0.0508;...
         -0.2305,  1.3008, -0.0703;...
@@ -14,12 +15,12 @@ width = 1552;
 bayerPattern = 'rggb';
 
 % Orange
-fname = 'vcap0_w2064_h1552_12bit_RGGB_Expt_29992us_ag_22403_126.raw'; %
+fname = 'vcap1_w2064_h1552_12bit_RGGB_Expt_29992us_ag_22403_87.raw'; %
 
 % Blue
 % fname = 'vcap0_w2064_h1552_12bit_RGGB_Expt_29992us_ag_22403_66.raw';
 
-fp  = fopen(fullfile(csRootPath,'local',fname),'rb');
+fp  = fopen(fullfile(csRootPath,'local','Results20171117','Camera_raw_data',fname),'rb');
 raw = double(fread(fp,[height width],'uint16'));
 fclose(fp);
 
@@ -29,7 +30,10 @@ raw(raw<0)=0;
 
 %% Crop the image
 rawF = figure; imagesc(raw); colormap(gray)
-rawRect = round(getrect(rawF));
+% for vcap1
+rawRect=[525   539   590   360];
+% for vcap0
+%rawRect = [575        1045         578         408];%round(getrect(rawF));
 
 % For the pixel to be an R pixel
 if ~isodd(rawRect(1)), rawRect(1) = rawRect(1) + 1; end
@@ -57,10 +61,10 @@ figure; imshow(rgb);
 %%  This is how we get the RGB data from the image
 
 % Pick out the rectangle from the image
-rect = round(getrect(gcf));
+%rect = round(getrect(gcf));
 
 % This was the rectangle for one case
-% rect = [784        1170         106          74];
+rect = [178   117   130    93];
 
 % Convert the rgb image to space by color format
 [img,r,c] = RGB2XWFormat(rgb);
@@ -90,10 +94,27 @@ vcAddObject(ip); ipWindow;
 %% This is how we put the data into an ISET sensor object
 
 sensor = sensorCreate;
-sensor = sensorSet(sensor,'cfa pattern',[1 2 ; 2 3]);
+sensor = sensorSet(sensor,'auto exposure',1);
+sensor = sensorSet(sensor,'cfa pattern',[1 2; 2 3]);
 rawScaled = single(rawPortion/(2^12));
 sensor = sensorSet(sensor,'volts',rawScaled);
 vcAddObject(sensor); sensorWindow;
 
-%%
+%% Check if the pixels are saturated.
+%uData = sensorPlot(sensor, 'volts hline', [250 150]);
+uData = sensorPlot(sensor, 'volts hline', [350 137]);
+
+c1= uData.data{1};
+c1_max= max(c1);
+if c1_max~=0;
+    count1= sum(c1==c1_max);
+    display(count1);
+end
+c2= uData.data{2};
+c2_max= max(c2);
+if c1_max~=0;
+    count2= sum(c2==c2_max);
+    display(count2);
+end
+
 
